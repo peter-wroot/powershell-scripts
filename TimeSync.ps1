@@ -10,12 +10,12 @@ Write-Host("`n")
 
 # Next up: Let's print off the opening logo. 
 Write-host("`t============================================================")
-Write-host("`t    _________ _                 ____________________________")
+Write-host("`t     ________ _                 ____________________________")
 Write-host("`t    |___   __(_)               / ___________________________")
 Write-host("`t        | |   _ _ __ ___   ___| (___  _   _ _ __   ___      ")
 Write-host("`t        | |  | | '_ ' _ \ / _ \\___ \| | | | '_ \ / __|     ")
 Write-host("`t        | |  | | | | | | |  __/____) | |_| | | | | (__      ")
-Write-host("`t        | |  |_|_| |_| |_|\___|_____/ \__, |_| | |\___|     ")
+Write-host("`t        | |  |_|_| |_| |_|\_________/ \__, |_| | |\___|     ")
 Write-host("`t________| |______________________________/ |   | |          ")
 Write-host("`t________| |_______________________________/    | |          ")
 Write-host("`t        | |                                    | |          ")
@@ -30,7 +30,11 @@ Write-host("`n")
 
 # We'll record the time before the sync command, the time the sync command takes to run, and the time after the sync command.
 [datetime]$PreviousSystemTime = Get-Date
-$ResyncRuntime = Measure-Command {w32tm.exe /resync} | Select-Object -ExpandProperty Milliseconds
+
+
+
+$ResyncRuntime = Measure-Command {net time \\pool.ntp.org /set /y} | Select-Object -ExpandProperty Milliseconds
+
 [datetime]$CurrentSystemTime = Get-Date
 
 # Now, we're going to present these times to the user. `t represents a 'tab' character, so everything is spaced out nicely!
