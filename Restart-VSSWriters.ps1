@@ -1,14 +1,12 @@
-﻿# Restart-VSSWriters.ps1
+# Restart-VSSWriters.ps1
 # A PowerShell Script to locate any failing VSS writers and gently persuade them to work again. 
 # Based off of a script posted by "Swarfega" on Reddit: https://www.reddit.com/r/PowerShell/comments/80ua5i/vss_writers_restart_script_if_failed/
 
-$writers = vssadmin list writers | 
-    Select-String -Context 0,4 'Writer name:' | 
-    ? {$_.Context.PostContext[2].Trim() -ne "Last error: No error"} | 
-    Select Line | 
-    % {$_.Line.tostring().Split("'")[1]}
+# List VSS writers and then format the output to only show the writer names. 
+$writers = vssadmin list writers | Select-String -Context 0,4 'Writer name:' | ? {$_.Context.PostContext[2].Trim() -ne "Last error: No error"} | Select Line | % {$_.Line.tostring().Split("'")[1]}
 
- $ServiceNames = $writers | 
+# The VSS writer names don't match what their respective services are called, so this function works as a lookup table to return the service name.
+$ServiceNames = $writers | 
     ForEach-Object {
         switch ($_) {
             'ASR Writer' { $Result = 'VSS' }
@@ -40,6 +38,6 @@ $writers = vssadmin list writers |
         $result
     }
 
+# Re-starts the services 
 If ($ServiceNames) { Restart-Service -Name ($ServiceNames | Select-Object -Unique) -Force}
-
 If ($Result) { Restart-Service -Name ($ServiceNames | Select-Object -Unique) -Force}
